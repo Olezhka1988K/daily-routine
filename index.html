@@ -47,6 +47,39 @@ button{background:#28354a;color:#eee9df;border-radius:13px;font-weight:600;borde
 #cloud-state{flex:1}#cloud-bar button{font-size:11px;padding:8px 11px}
 #legacy-migrate{max-width:630px;margin:10px auto 0;padding:14px 19px;border:1px solid #c9af8150;border-radius:15px;background:#263042}
 #legacy-migrate p{margin:4px 0 10px;font-size:12px;color:#dfd5c1}
+</style><style>
+/* iPhone Safari stable navigation: only the main panel scrolls.
+   The menu is in the fixed-height app layout, not over the document. */
+html { height: 100%; overflow: hidden; }
+body {
+  height: 100vh;
+  height: 100svh;
+  min-height: 0;
+  padding: env(safe-area-inset-top) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#cloud-bar, #legacy-migrate { flex-shrink: 0; width: 100%; }
+#app-shell.app {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: 24px;
+}
+#nav-tabs.tabs {
+  position: relative;
+  flex: 0 0 auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  width: 100%;
+  z-index: 5;
+}
 </style></head><body><section id="auth-screen" aria-label="Вход в Daily Routine"><form id="auth-form" class="auth-panel"><div class="eyebrow">DAILY ROUTINE · PRIVATE</div><h1>Личный кабинет</h1><p>Вход только для владельца аккаунта. Вес, питание и прогресс сохраняются в защищённой базе.</p><label for="auth-email">Электронная почта</label><input id="auth-email" type="email" required autocomplete="username" placeholder="email@example.com"><label for="auth-password">Пароль</label><input id="auth-password" type="password" required minlength="6" autocomplete="current-password" placeholder="Пароль"><button id="auth-login" class="primary" type="submit">Войти</button><div id="auth-message" role="status"></div></form></section>
 <div id="cloud-bar" class="hidden"><span id="cloud-state">Облако: подключено</span><button type="button" class="ghost" id="logout">Выйти</button></div>
 <div id="legacy-migrate" class="hidden"><b>Есть записи из старой версии</b><p>Можешь перенести локальную историю в свой облачный аккаунт. Это заменит текущие облачные записи на совпадающие даты. Действие выполняется только с твоего подтверждения.</p><button type="button" class="primary" id="migrate-legacy">Перенести старые записи</button><button type="button" class="ghost" id="dismiss-migrate">Позже</button></div>
@@ -54,7 +87,7 @@ button{background:#28354a;color:#eee9df;border-radius:13px;font-weight:600;borde
 <section id="page-today"><div class="card"><h2 style="margin:0 0 13px">План недели</h2><div id="week-plan" class="week-plan"></div></div><div class="card"><div class="head"><b>Сегодня выполнено</b><b id="score" style="color:var(--green)">0/0</b></div><div class="progress"><div id="fill" style="width:0%"></div></div><div id="completion-status"></div><div class="stats"><div class="stat"><span>Сон</span><b>2 блока</b><span>00:15 / 12:30</span></div><div class="stat"><span>Активность</span><b id="sport">—</b><span>09:00 или перенос</span></div><div class="stat"><span>Калории</span><b id="eaten">0</b><span>цель 2300</span></div></div></div><div class="card"><div class="head"><h2>План дня</h2><button class="ghost" id="reset-day">↺ Сбросить</button></div><div id="today-list"></div><button class="ghost" id="add-task" style="width:100%;margin-top:9px">+ Добавить событие</button><p class="notice">Нажмите на название приёма пищи, чтобы внести калории. ✎ — изменить время, «Пропустить» — если планы изменились. Изменения действуют только на выбранный день.</p></div></section>
 <section id="page-food" class="hidden"><div class="card"><h2>Калькулятор калорий</h2><div class="stats"><div class="stat"><span>Съедено</span><b id="food-eaten">0</b><span>ккал</span></div><div class="stat"><span>До цели</span><b id="food-left">2300</b><span>ккал</span></div><div class="stat"><span>Баланс*</span><b id="food-deficit">—</b><span>ккал</span></div></div><div class="progress"><div id="food-fill"></div></div><p class="notice">*Баланс = оценка поддержания − съеденные калории. До конца дня это предварительный расчёт. Реальный расход неизвестен.</p><div class="fields"><div class="field"><label>Приём пищи</label><select id="meal"><option>Завтрак</option><option>Обед</option><option>Ужин</option><option>Перекус</option><option>Другое</option></select></div><div class="field"><label>Калории</label><input id="calories" type="number" min="1" max="10000" placeholder="Например 450" inputmode="numeric"></div></div><button class="primary" id="add-food" style="width:100%;margin-top:12px">+ Добавить запись</button><div id="food-list"></div></div><div class="card"><h2>Цель снижения веса</h2><div class="stats"><div class="stat"><span>Цель недели</span><b>−0,4 кг</b><span>в неделю</span></div><div class="stat"><span>Плановый дефицит</span><b>450</b><span>ккал/день</span></div><div class="stat"><span>Дневная цель</span><b>2300</b><span>ккал/день</span></div></div><p class="notice">Поддержание 2750 ккал — приблизительная оценка, не измеренный расход. Уточняйте по среднему весу за 2–3 недели.</p></div><div class="card"><h2>Параметры расчёта</h2><div class="fields"><div class="field"><label>Цель, ккал</label><input id="goal-input" type="number" min="1200" max="6000"></div><div class="field"><label>Поддержание, ккал</label><input id="tdee-input" type="number" min="1500" max="6000"></div></div><p class="notice">Начальная оценка поддержания — 2750 ккал. Уточняйте по среднему весу за несколько недель. Не прибавляйте к лимиту все калории с часов.</p><button class="ghost" id="save-goals">Сохранить параметры</button></div></section>
 <section id="page-weight" class="hidden"><div class="card"><h2>Календарь веса</h2><div class="row spread"><button class="ghost" id="prev-month">‹</button><b id="month-label"></b><button class="ghost" id="next-month">›</button></div><div class="calendar" style="margin:16px 0 9px" id="weekday-head"></div><div class="calendar" id="calendar"></div><p class="notice">Зелёная точка — записаны калории; фиолетовая — записан вес. Нажмите дату для редактирования.</p></div><div class="card"><h2>Вес на выбранную дату</h2><div class="fields"><div class="field"><label>Дата</label><input id="weight-date-display" type="text" readonly><input id="weight-date" type="date" class="hidden"></div><div class="field"><label>Вес, кг</label><input id="weight-value" type="number" min="30" max="350" step="0.1" placeholder="Например 109.8"></div></div><button class="primary" id="save-weight" style="margin-top:12px;width:100%">Сохранить вес</button><div id="weight-summary" style="margin-top:14px"></div></div></section>
-<section id="page-history" class="hidden"><div class="card"><h2>Последние 7 дней</h2><div id="history-stats"></div><div id="history-list"></div></div><div class="card"><h2>Резервная копия</h2><p class="notice">Записи сохраняются в защищённой облачной базе. Резервную копию JSON всё равно рекомендуется хранить в безопасном месте.</p><div class="row"><button class="primary" id="export">Экспорт JSON</button><button class="ghost" id="import">Импорт</button><input class="hidden" type="file" id="import-file" accept="application/json,.json"></div></div></section><footer>DAILY ROUTINE · личный защищённый дневник · версия 2.0 · cloud</footer></main>
+<section id="page-history" class="hidden"><div class="card"><h2>Последние 7 дней</h2><div id="history-stats"></div><div id="history-list"></div></div><div class="card"><h2>Резервная копия</h2><p class="notice">Записи сохраняются в защищённой облачной базе. Резервную копию JSON всё равно рекомендуется хранить в безопасном месте.</p><div class="row"><button class="primary" id="export">Экспорт JSON</button><button class="ghost" id="import">Импорт</button><input class="hidden" type="file" id="import-file" accept="application/json,.json"></div></div></section><footer>DAILY ROUTINE · личный защищённый дневник · версия 2.0.1 · cloud</footer></main>
 <div id="dialog" class="modal hidden"><div class="modalbox"><h2 id="dialog-title">Изменить событие</h2><div class="stack"><div class="field"><label>Название</label><input id="event-title"></div><div class="field"><label>Время (24 ч)</label><input id="event-time" type="time"></div><div class="field"><label>Комментарий</label><input id="event-desc"></div><div class="row"><button class="ghost" id="cancel-dialog">Отмена</button><button class="primary" id="confirm-dialog">Сохранить</button></div></div></div></div>
 <div id="complete-overlay" class="complete-overlay hidden" role="dialog" aria-modal="true" aria-label="День завершён"><div class="complete-panel"><div class="complete-kicker">DAILY ROUTINE · EXECUTIVE</div><div class="complete-ring"><b>100%</b></div><div class="complete-heading">DAY COMPLETE</div><p class="complete-quote" id="complete-quote"></p><button type="button" class="primary" id="close-completion">Продолжить</button></div></div>
 <nav class="tabs hidden" id="nav-tabs"><div class="tabbar"><button class="tab active" data-tab="today"><span>◷</span>Сегодня</button><button class="tab" data-tab="food"><span>◉</span>Калории</button><button class="tab" data-tab="weight"><span>▦</span>Вес</button><button class="tab" data-tab="history"><span>▤</span>История</button></div></nav>
